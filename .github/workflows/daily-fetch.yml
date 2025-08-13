@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          persist-credentials: true
           fetch-depth: 0
 
       - name: Configure Git credentials
@@ -84,5 +84,6 @@ jobs:
         run: |
           git add fetched-content.txt fetched-content.json
           git commit -m "Update fetched content and JSON $(date +'%Y-%m-%d')" || echo "No changes to commit"
-          # 使用GitHub Actions令牌进行推送
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} || echo "Push failed due to permissions"
+          # 配置远程仓库地址并使用GitHub Actions令牌进行推送
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push origin HEAD:${{ github.ref }} || echo "Push failed due to permissions"
