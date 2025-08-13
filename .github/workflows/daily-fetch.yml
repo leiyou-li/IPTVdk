@@ -38,7 +38,14 @@ jobs:
           if [ -f fetched-content.txt ]; then
             echo "Fetched file exists"
             ls -l fetched-content.txt
-            cat fetched-content.txt
+            # 显示文件内容的前10行，避免输出过长
+            head -n 10 fetched-content.txt
+            # 检查文件是否为空
+            if [ -s fetched-content.txt ]; then
+              echo "Fetched file is not empty"
+            else
+              echo "Fetched file is empty"
+            fi
           else
             echo "Fetched file does not exist"
             exit 1
@@ -46,15 +53,30 @@ jobs:
           
           # 删除空行
           sed -i '/^$/d' fetched-content.txt
+          echo "Empty lines removed"
+          ls -l fetched-content.txt
+          head -n 10 fetched-content.txt
+
+          # 检查jq是否安装成功
+          if command -v jq &> /dev/null; then
+            echo "jq is installed"
+            jq --version
+          else
+            echo "jq is not installed"
+            exit 1
+          fi
 
           # 将内容转换为JSON格式
           echo "Converting to JSON..."
-          if jq -R -n '{content: [inputs]}' fetched-content.txt > fetched-content.json; then
+          # 尝试转换并捕获错误输出
+          if jq_output=$(jq -R -n '{content: [inputs]}' fetched-content.txt 2>&1); then
+            # 写入文件
+            echo "$jq_output" > fetched-content.json
             echo "JSON conversion successful"
             ls -l fetched-content.json
             cat fetched-content.json
           else
-            echo "JSON conversion failed"
+            echo "JSON conversion failed: $jq_output"
             exit 1
           fi
 
