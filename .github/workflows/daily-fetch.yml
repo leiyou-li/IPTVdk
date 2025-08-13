@@ -11,6 +11,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Configure Git credentials
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
 
       - name: Install jq
         run: |
@@ -55,8 +63,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
           git add fetched-content.txt fetched-content.json
           git commit -m "Update fetched content and JSON $(date +'%Y-%m-%d')" || echo "No changes to commit"
-          git push || echo "No changes to push"
+          # 使用GitHub Actions令牌进行推送
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} || echo "Push failed due to permissions"
