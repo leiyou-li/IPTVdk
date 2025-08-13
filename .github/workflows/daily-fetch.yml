@@ -1,0 +1,40 @@
+name: Daily Fetch and Process
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天UTC时间0点执行
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  fetch-and-process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Fetch content from URL
+        run: |
+          curl -o fetched-content.txt "http://pan.wdrjk.top/down.php/ba614d49e76356e9c29f53fe84dd2070.txt"
+
+      - name: Process content
+        run: |
+          # 保留包含'🇨🇳四川电信,#genre#'的内容
+          grep '🇨🇳四川电信,#genre#' fetched-content.txt > filtered-content.txt
+          mv filtered-content.txt fetched-content.txt
+          
+          # 可选：删除空行
+          sed -i '/^$/d' fetched-content.txt
+
+          # 将内容转换为JSON格式
+          jq -R -n '{content: [inputs]}' fetched-content.txt > fetched-content.json
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add fetched-content.txt fetched-content.json
+          git commit -m "Update fetched content and JSON $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git push || echo "No changes to push"
