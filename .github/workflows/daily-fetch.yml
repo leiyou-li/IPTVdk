@@ -1,5 +1,8 @@
 name: Daily Fetch and Process
 
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: '0 0 * * *'  # 每天UTC时间0点执行
@@ -85,5 +88,5 @@ jobs:
           git add fetched-content.txt fetched-content.json
           git commit -m "Update fetched content and JSON $(date +'%Y-%m-%d')" || echo "No changes to commit"
           # 配置远程仓库地址并使用GitHub Actions令牌进行推送
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git push origin HEAD:${{ github.ref }} || echo "Push failed due to permissions"
+          # Use GitHub Actions token for authentication
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} || echo "Push failed due to permissions"
