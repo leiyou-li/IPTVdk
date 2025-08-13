@@ -34,20 +34,17 @@ jobs:
 
       - name: Process content
         run: |
-          # 保留包含'🇨🇳四川电信,#genre#'的内容
-          grep '🇨🇳四川电信,#genre#' fetched-content.txt > filtered-content.txt
-          mv filtered-content.txt fetched-content.txt
-          
-          # 检查过滤后的文件是否存在
+          # 检查拉取的文件是否存在
           if [ -f fetched-content.txt ]; then
-            echo "Filtered file exists"
+            echo "Fetched file exists"
             ls -l fetched-content.txt
             cat fetched-content.txt
           else
-            echo "Filtered file does not exist"
+            echo "Fetched file does not exist"
+            exit 1
           fi
           
-          # 可选：删除空行
+          # 删除空行
           sed -i '/^$/d' fetched-content.txt
 
           # 将内容转换为JSON格式
