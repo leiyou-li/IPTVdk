@@ -1,0 +1,73 @@
+name: Filter Content After Daily Fetch
+
+permissions:
+  contents: write
+
+on:
+  workflow_run:
+    workflows: ["Daily Fetch and Process"]
+    types:
+      - completed
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  filter-content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Configure Git credentials
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Check if fetched-content.txt exists
+        run: |
+          if [ ! -f fetched-content.txt ]; then
+            echo "File fetched-content.txt does not exist. Exiting."
+            exit 1
+          fi
+
+      - name: Filter content
+        run: |
+          echo "Filtering content..."
+          # 创建筛选后的文件，删除指定行和'国外,'之后的内容
+          awk '{
+            # 检查是否包含'国外,'，如果是则退出
+            if ($0 ~ /国外,/) {
+              exit
+            }
+            # 跳过指定行
+            if ($0 ~ /^🆑当前更新,#genre#/ || 
+                $0 ~ /^💎8月6日,https:\/\/vd2\.bdstatic\.com\/mda-pmrnj7kz4w1j04q0\/576p\/h264\/1703606205600411832\/mda-pmrnj7kz4w1j04q0\.mp4/ || 
+                $0 ~ /^🆑关注发密码,#genre#/) {
+              next
+            }
+            # 打印其他所有行
+            print
+          }' fetched-content.txt > filtered-content.txt
+
+          # 检查筛选后的文件是否创建成功
+          if [ ! -f filtered-content.txt ]; then
+            echo "Filtered file was not created."
+            exit 1
+          fi
+
+          # 检查筛选后的文件是否为空
+          if [ ! -s filtered-content.txt ]; then
+            echo "Filtered file is empty."
+            exit 1
+          fi
+
+          echo "Content filtering completed successfully."
+
+      - name: Commit and push filtered content
+        run: |
+          git add filtered-content.txt
+          git commit -m "Add filtered content $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          # 使用GitHub Actions令牌进行推送
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }} || echo "Push failed due to permissions"
