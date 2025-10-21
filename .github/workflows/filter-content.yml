@@ -38,16 +38,17 @@ jobs:
           # 添加调试信息
           echo "Sample of fetched content:" && head -n 10 fetched-content.txt
           
+          # 创建临时调试日志文件
+          touch debug_log.txt
+          
           # 创建筛选后的文件，删除指定行和'国外,'之后的内容
           # 使用更健壮的方式处理emoji字符，使用括号分组提高可读性
           awk '{
             # 检查是否包含'国外,'，如果是则退出
             if ($0 ~ /国外,/) {
-              print "DEBUG: Found '国外,' marker, stopping processing"
+              print "DEBUG: Found '国外,' marker, stopping processing" > "/dev/stderr"
               exit
             }
-            # 调试：打印当前行
-            # print "DEBUG: Processing line: " $0
             
             # 跳过指定行 - 使用更精确的匹配方式
             if ($0 ~ /^🆑当前更新,#genre#/ || 
@@ -56,17 +57,23 @@ jobs:
                 # 尝试不同的匹配方式处理香港emoji
                 ($0 ~ /^gateway,#genre#/ || $0 ~ /🇭🇰.*gateway,#genre#/) ||
                 $0 ~ /^公众号:江南库总库/) {
-              # 添加调试信息
-              print "DEBUG: Skipping line: " $0
+              # 将调试信息输出到标准错误而不是结果文件
+              print "DEBUG: Skipping line: " $0 > "/dev/stderr"
               next
             }
-            # 打印其他所有行
+            # 打印其他所有行到结果文件
             print
-          }' fetched-content.txt > filtered-content.txt
+          }' fetched-content.txt > filtered-content.txt 2> debug_log.txt
+          
+          # 显示调试信息
+          echo "Lines skipped by filter:" && wc -l < debug_log.txt || echo "0"
+          echo "Skipped lines:" && cat debug_log.txt
           
           # 添加调试信息，显示过滤结果
           echo "Sample of filtered content:" && head -n 10 filtered-content.txt
-          echo "Lines skipped by filter:" && grep -c "DEBUG: Skipping line" filtered-content.txt || echo "0"
+          
+          # 清理临时文件
+          rm debug_log.txt
 
           # 检查筛选后的文件是否创建成功
           if [ ! -f filtered-content.txt ]; then
