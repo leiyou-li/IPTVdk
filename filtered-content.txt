@@ -1,7 +1,3 @@
-DEBUG: Skipping line: 🆑当前更新,#genre#
-DEBUG: Skipping line: 💎8月6日,https://vd2.bdstatic.com/mda-pmrnj7kz4w1j04q0/576p/h264/1703606205600411832/mda-pmrnj7kz4w1j04q0.mp4
-DEBUG: Skipping line: 🆑关注发密码,#genre#
-DEBUG: Skipping line: 公众号:江南库总库
 🇨🇳四川电信,#genre#
 CCTV1,http://183.222.242.31:8088/hls/1/index.m3u8
 CCTV2,http://183.222.242.31:8088/hls/2/index.m3u8
@@ -1337,7 +1333,6 @@ Poison丶冰冰,http://zzy789.xyz/douyu1.php?id=74374
 西安交通广播,http://ls.qingting.fm/live/1611.m3u8
 西安新闻广播,http://ls.qingting.fm/live/1610.m3u8
 西安音乐广播,http://ls.qingting.fm/live/1612.m3u8
-DEBUG: Skipping line: 🇭🇰gateway,#genre#
 台视,rtmp://f13h.mine.nu/sat/tv071
 中视,rtmp://f13h.mine.nu/sat/tv091
 华视,rtmp://f13h.mine.nu/sat/tv111
@@ -1482,4 +1477,3 @@ CGTN,http://198.16.100.186:8278/CGTN/playlist.m3u8?tid=MDED6717475367174753&ct=1
 四川卫视,http://198.16.100.186:8278/sichuan_twn/playlist.m3u8?tid=MD4D5174810351748103&ct=19226&tsum=dd620e398eb2b4f07c3a05dc39bd6673
 广西卫视,http://198.16.100.186:8278/guangxi/playlist.m3u8?tid=MB5B3787443737874437&ct=19226&tsum=fff4886674a160d3d57ddf759569c511
 湖北卫视,http://198.16.100.186:8278/hubei/playlist.m3u8?tid=MF2F5899308558993085&ct=19226&tsum=a2b015b4bc0a21b9ffcbf3db2655b579
-DEBUG: Found 国外, marker, stopping processing
