@@ -35,45 +35,31 @@ jobs:
       - name: Filter content
         run: |
           echo "Filtering content..."
-          # 添加调试信息
-          echo "Sample of fetched content:" && head -n 10 fetched-content.txt
-          
-          # 创建临时调试日志文件
-          touch debug_log.txt
           
           # 创建筛选后的文件，删除指定行和'国外,'之后的内容
-          # 使用更健壮的方式处理emoji字符，使用括号分组提高可读性
+          # 完全移除所有调试输出，确保只输出需要保留的行
           awk '{
             # 检查是否包含'国外,'，如果是则退出
             if ($0 ~ /国外,/) {
-              print "DEBUG: Found '国外,' marker, stopping processing" > "/dev/stderr"
               exit
             }
             
-            # 跳过指定行 - 使用更精确的匹配方式
+            # 跳过指定行 - 包含各种需要过滤的模式
             if ($0 ~ /^🆑当前更新,#genre#/ || 
                 $0 ~ /^💎8月6日,https:\/\/vd2\.bdstatic\.com\/mda-pmrnj7kz4w1j04q0\/576p\/h264\/1703606205600411832\/mda-pmrnj7kz4w1j04q0\.mp4/ || 
                 $0 ~ /^🆑关注发密码,#genre#/ ||
-                # 尝试不同的匹配方式处理香港emoji
-                ($0 ~ /^gateway,#genre#/ || $0 ~ /🇭🇰.*gateway,#genre#/) ||
+                # 确保香港emoji行被正确过滤
+                $0 ~ /🇭🇰gateway,#genre#/ ||
                 $0 ~ /^公众号:江南库总库/) {
-              # 将调试信息输出到标准错误而不是结果文件
-              print "DEBUG: Skipping line: " $0 > "/dev/stderr"
+              # 直接跳过，不输出任何内容
               next
             }
-            # 打印其他所有行到结果文件
+            # 只打印需要保留的行
             print
-          }' fetched-content.txt > filtered-content.txt 2> debug_log.txt
+          }' fetched-content.txt > filtered-content.txt
           
-          # 显示调试信息
-          echo "Lines skipped by filter:" && wc -l < debug_log.txt || echo "0"
-          echo "Skipped lines:" && cat debug_log.txt
-          
-          # 添加调试信息，显示过滤结果
-          echo "Sample of filtered content:" && head -n 10 filtered-content.txt
-          
-          # 清理临时文件
-          rm debug_log.txt
+          # 简单检查过滤结果
+          echo "Filtering completed."
 
           # 检查筛选后的文件是否创建成功
           if [ ! -f filtered-content.txt ]; then
